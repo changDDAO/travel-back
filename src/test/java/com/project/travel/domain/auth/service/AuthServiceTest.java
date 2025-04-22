@@ -6,6 +6,7 @@ import com.project.travel.domain.auth.dto.response.AuthSignUpResponse;
 import com.project.travel.domain.user.entity.User;
 import com.project.travel.domain.user.entity.UserRole;
 import com.project.travel.domain.user.repository.UserRepository;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -35,6 +36,7 @@ class AuthServiceTest {
     AuthService authService;
 
     @Test
+    @DisplayName("auth/signup")
     void signUp() {
         // given
         String email = "email@email.com";

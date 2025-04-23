@@ -1,8 +1,10 @@
 package com.project.travel.domain.auth.service;
 
+import com.project.travel.common.error.exceptions.ConflictException;
 import com.project.travel.common.security.JwtTokenProvider;
 import com.project.travel.domain.auth.dto.request.AuthSignUpRequest;
 import com.project.travel.domain.auth.dto.response.AuthSignUpResponse;
+import com.project.travel.domain.auth.error.AuthErrorCode;
 import com.project.travel.domain.user.entity.User;
 import com.project.travel.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +21,7 @@ public class AuthService {
 
     public AuthSignUpResponse signUp(AuthSignUpRequest request) {
         if (userRepository.existsByEmail(request.email())) {
-            // duplicated email exception
+            throw new ConflictException(AuthErrorCode.AUTH_DUPLICATED_EMAIL);
         }
 
         String encodedPassword = bCryptPasswordEncoder.encode(request.password());

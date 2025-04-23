@@ -1,5 +1,6 @@
 package com.project.travel.domain.user.entity;
 
+import com.project.travel.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -17,9 +18,10 @@ import lombok.NoArgsConstructor;
                 @UniqueConstraint(name = "idx_u_nickname", columnNames = { "nickname" })
         }
 )
-public class User {
+public class User extends BaseTimeEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue
     @Column(name = "user_id")
     private Long id;
 

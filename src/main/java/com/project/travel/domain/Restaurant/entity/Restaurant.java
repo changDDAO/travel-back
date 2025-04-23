@@ -1,5 +1,6 @@
 package com.project.travel.domain.Restaurant.entity;
 
+import com.project.travel.common.entity.BaseTimeEntity;
 import com.project.travel.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -15,13 +16,14 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "restaurants")
-public class Restaurant {
+public class Restaurant extends BaseTimeEntity {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     @Column(name = "restaurant_id")
     private Long id;
+    
     @ManyToOne(fetch = FetchType.LAZY)
-
     @JoinColumn(name = "user_id")
     private User user;
 

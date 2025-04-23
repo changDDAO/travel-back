@@ -1,5 +1,6 @@
 package com.project.travel.domain.view.entity;
 
+import com.project.travel.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -10,9 +11,10 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "views")
-public class View {
+public class View extends BaseTimeEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue
     @Column(name = "view_id")
     private Long id;
 }

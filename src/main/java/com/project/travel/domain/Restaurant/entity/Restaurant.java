@@ -1,8 +1,8 @@
-package com.project.travel.domain.place.entity;
+package com.project.travel.domain.Restaurant.entity;
 
+import com.project.travel.common.entity.BaseTimeEntity;
 import com.project.travel.domain.user.entity.User;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,14 +15,15 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 
 @Entity
-@Table(name = "places")
-public class Place {
+@Table(name = "restaurants")
+public class Restaurant extends BaseTimeEntity {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     @Column(name = "restaurant_id")
     private Long id;
+    
     @ManyToOne(fetch = FetchType.LAZY)
-
     @JoinColumn(name = "user_id")
     private User user;
 

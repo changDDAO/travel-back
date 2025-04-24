@@ -1,5 +1,6 @@
 package com.project.travel.domain.plan.entity;
 
+import com.project.travel.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -10,10 +11,10 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "plans")
-public class Plan {
+public class Plan extends BaseTimeEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     @Column(name = "plan_id")
     private Long id;
 }

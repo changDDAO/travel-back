@@ -1,6 +1,8 @@
 package com.project.travel.domain.auth.controller;
 
+import com.project.travel.domain.auth.dto.request.AuthSignInRequest;
 import com.project.travel.domain.auth.dto.request.AuthSignUpRequest;
+import com.project.travel.domain.auth.dto.response.AuthSignInResponse;
 import com.project.travel.domain.auth.dto.response.AuthSignUpResponse;
 import com.project.travel.domain.auth.service.AuthService;
 import jakarta.validation.Valid;
@@ -27,6 +29,17 @@ public class AuthController {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
+                .body(response);
+    }
+
+    @PostMapping("/signin")
+    public ResponseEntity<AuthSignInResponse> signin(
+            @RequestBody @Valid AuthSignInRequest request
+    ) {
+        AuthSignInResponse response = authService.signIn(request);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
                 .body(response);
     }
 }

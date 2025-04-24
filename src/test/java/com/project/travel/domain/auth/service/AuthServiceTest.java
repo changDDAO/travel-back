@@ -39,19 +39,19 @@ class AuthServiceTest {
     @InjectMocks
     AuthService authService;
 
+    String email = "email@email.com";
+    String password = "password";
+    String nickname = "nickname";
+    String name = "name";
+    String phone = "phone";
+    String encodedPassword = "encodedPassword";
+    String accessToken = "accessToken";
+    String refreshToken = "refreshToken";
+
     @Test
     @DisplayName("[api/auth/signup] - 회원 가입 성공")
     void signUp() {
         // given
-        String email = "email@email.com";
-        String password = "password";
-        String nickname = "nickname";
-        String name = "name";
-        String phone = "phone";
-        String encodedPassword = "encodedPassword";
-        String accessToken = "accessToken";
-        String refreshToken = "refreshToken";
-
         AuthSignUpRequest request = new AuthSignUpRequest(
                 email,
                 password,
@@ -88,12 +88,6 @@ class AuthServiceTest {
     @DisplayName("[api/auth/signin] - 로그인 성공")
     void signIn() {
         // given
-        String email = "email@email.com";
-        String password = "password";
-        String encodedPassword = "encodedPassword";
-        String accessToken = "accessToken";
-        String refreshToken = "refreshToken";
-
         AuthSignInRequest request = new AuthSignInRequest(
                 email,
                 password

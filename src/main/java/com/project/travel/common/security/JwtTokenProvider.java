@@ -1,7 +1,9 @@
 package com.project.travel.common.security;
 
+import com.project.travel.common.security.error.SecurityErrorCode;
 import com.project.travel.common.security.model.TokenType;
 import com.project.travel.domain.user.entity.User;
+import com.project.travel.domain.user.entity.UserRole;
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -82,17 +84,13 @@ public class JwtTokenProvider {
                     .getExpiration()
                     .after(new Date());
         } catch (SecurityException | MalformedJwtException e) {
-//            log.error(ErrorCode.INVALID_JWT_SIGNATURE.getMessage());
-//            throw new BadCredentialsException(ErrorCode.INVALID_JWT_SIGNATURE.getMessage());
+            log.error(SecurityErrorCode.INVALID_JWT_SIGNATURE.getMessage());
         } catch (ExpiredJwtException e) {
-//            log.error(ErrorCode.EXPIRED_JWT_TOKEN.getMessage());
-//            throw new BadCredentialsException(ErrorCode.EXPIRED_JWT_TOKEN.getMessage());
+            log.error(SecurityErrorCode.EXPIRED_JWT_TOKEN.getMessage());
         } catch (UnsupportedJwtException e) {
-//            log.error(ErrorCode.UNSUPPORTED_JWT_TOKEN.getMessage());
-//            throw new BadCredentialsException(ErrorCode.UNSUPPORTED_JWT_TOKEN.getMessage());
+            log.error(SecurityErrorCode.UNSUPPORTED_JWT_TOKEN.getMessage());
         } catch (Exception e) {
-//            log.error(ErrorCode.INVALID_JWT_TOKEN.getMessage());
-//            throw new BadCredentialsException(ErrorCode.INVALID_JWT_TOKEN.getMessage());
+            log.error(SecurityErrorCode.INVALID_JWT_TOKEN.getMessage());
         }
 
         return false;
@@ -102,12 +100,10 @@ public class JwtTokenProvider {
         String accessToken = removeBearer(token);
         Claims claims = parseClaimsFromToken(accessToken);
 
-        return null;
-
-//        return User.builder()
-//                .id(Long.parseLong(claims.get("id", String.class)))
-//                .role(UserRole.of(claims.get("role", String.class)))
-//                .build();
+        return User.builder()
+                .id(Long.parseLong(claims.get("id", String.class)))
+                .role(UserRole.of(claims.get("role", String.class)))
+                .build();
     }
 
     public long getAccessTokenExpiryTime(String token) {
@@ -117,7 +113,7 @@ public class JwtTokenProvider {
 
     private void validateAccessTokenStartsWithBearer(String token) {
         if (!token.startsWith(BEARER_PREFIX)) {
-//            throw new BadCredentialsException(ErrorCode.INVALID_TOKEN.getMessage());
+            throw new BadCredentialsException(SecurityErrorCode.INVALID_TOKEN.getMessage());
         }
     }
 

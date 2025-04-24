@@ -1,7 +1,9 @@
 package com.project.travel.domain.auth.service;
 
 import com.project.travel.common.security.JwtTokenProvider;
+import com.project.travel.domain.auth.dto.request.AuthSignInRequest;
 import com.project.travel.domain.auth.dto.request.AuthSignUpRequest;
+import com.project.travel.domain.auth.dto.response.AuthSignInResponse;
 import com.project.travel.domain.auth.dto.response.AuthSignUpResponse;
 import com.project.travel.domain.user.entity.User;
 import com.project.travel.domain.user.entity.UserRole;
@@ -14,6 +16,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,19 +39,19 @@ class AuthServiceTest {
     @InjectMocks
     AuthService authService;
 
+    String email = "email@email.com";
+    String password = "password";
+    String nickname = "nickname";
+    String name = "name";
+    String phone = "phone";
+    String encodedPassword = "encodedPassword";
+    String accessToken = "accessToken";
+    String refreshToken = "refreshToken";
+
     @Test
-    @DisplayName("auth/signup")
+    @DisplayName("[api/auth/signup] - 회원 가입 성공")
     void signUp() {
         // given
-        String email = "email@email.com";
-        String password = "password";
-        String nickname = "nickname";
-        String name = "name";
-        String phone = "phone";
-        String hashedPassword = "hashedPassword";
-        String accessToken = "accessToken";
-        String refreshToken = "refreshToken";
-
         AuthSignUpRequest request = new AuthSignUpRequest(
                 email,
                 password,
@@ -56,10 +60,10 @@ class AuthServiceTest {
                 phone
         );
 
-        User user = request.toEntity(hashedPassword);
+        User user = request.toEntity(encodedPassword);
 
         when(userRepository.existsByEmail(request.email())).thenReturn(false);
-        when(bCryptPasswordEncoder.encode(request.password())).thenReturn(hashedPassword);
+        when(bCryptPasswordEncoder.encode(request.password())).thenReturn(encodedPassword);
         when(userRepository.save(any(User.class))).thenReturn(user);
         when(jwtTokenProvider.generateAccessToken(String.valueOf(user.getId()), user.getRole().getValue()))
                 .thenReturn(accessToken);
@@ -75,6 +79,41 @@ class AuthServiceTest {
         verify(userRepository, times(1)).existsByEmail(request.email());
         verify(bCryptPasswordEncoder, times(1)).encode(request.password());
         verify(userRepository, times(1)).save(any(User.class));
+        verify(jwtTokenProvider, times(1))
+                .generateAccessToken(String.valueOf(user.getId()), user.getRole().getValue());
+        verify(jwtTokenProvider, times(1)).generateRefreshToken();
+    }
+
+    @Test
+    @DisplayName("[api/auth/signin] - 로그인 성공")
+    void signIn() {
+        // given
+        AuthSignInRequest request = new AuthSignInRequest(
+                email,
+                password
+        );
+
+        User user = User.builder()
+                .email(email)
+                .password(encodedPassword)
+                .role(UserRole.USER)
+                .build();
+
+        when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(user));
+        when(bCryptPasswordEncoder.matches(request.password(), encodedPassword)).thenReturn(true);
+        when(jwtTokenProvider.generateAccessToken(String.valueOf(user.getId()), user.getRole().getValue()))
+                .thenReturn(accessToken);
+        when(jwtTokenProvider.generateRefreshToken()).thenReturn(refreshToken);
+
+        // when
+        AuthSignInResponse response = authService.signIn(request);
+
+        // then
+        assertThat(response.accessToken()).isEqualTo(accessToken);
+        assertThat(response.refreshToken()).isEqualTo(refreshToken);
+
+        verify(userRepository, times(1)).findByEmail(email);
+        verify(bCryptPasswordEncoder, times(1)).matches(request.password(), encodedPassword);
         verify(jwtTokenProvider, times(1))
                 .generateAccessToken(String.valueOf(user.getId()), user.getRole().getValue());
         verify(jwtTokenProvider, times(1)).generateRefreshToken();

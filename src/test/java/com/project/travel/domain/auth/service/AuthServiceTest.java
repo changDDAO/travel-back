@@ -5,9 +5,11 @@ import com.project.travel.domain.auth.dto.request.AuthSignInRequest;
 import com.project.travel.domain.auth.dto.request.AuthSignUpRequest;
 import com.project.travel.domain.auth.dto.response.AuthSignInResponse;
 import com.project.travel.domain.auth.dto.response.AuthSignUpResponse;
+import com.project.travel.domain.auth.repository.AuthRedisRepository;
 import com.project.travel.domain.user.entity.User;
 import com.project.travel.domain.user.entity.UserRole;
 import com.project.travel.domain.user.repository.UserRepository;
+import com.project.travel.domain.user.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,7 +36,10 @@ class AuthServiceTest {
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Mock
-    UserRepository userRepository;
+    UserService userService;
+
+    @Mock
+    AuthRedisRepository authRedisRepository;
 
     @InjectMocks
     AuthService authService;
@@ -62,9 +67,9 @@ class AuthServiceTest {
 
         User user = request.toEntity(encodedPassword);
 
-        when(userRepository.existsByEmail(request.email())).thenReturn(false);
+        when(userService.existsByEmail(request.email())).thenReturn(false);
         when(bCryptPasswordEncoder.encode(request.password())).thenReturn(encodedPassword);
-        when(userRepository.save(any(User.class))).thenReturn(user);
+        when(userService.save(any(User.class))).thenReturn(user);
         when(jwtTokenProvider.generateAccessToken(String.valueOf(user.getId()), user.getRole().getValue()))
                 .thenReturn(accessToken);
         when(jwtTokenProvider.generateRefreshToken()).thenReturn(refreshToken);
@@ -76,12 +81,14 @@ class AuthServiceTest {
         assertThat(response.accessToken()).isEqualTo(accessToken);
         assertThat(response.refreshToken()).isEqualTo(refreshToken);
 
-        verify(userRepository, times(1)).existsByEmail(request.email());
+        verify(userService, times(1)).existsByEmail(request.email());
         verify(bCryptPasswordEncoder, times(1)).encode(request.password());
-        verify(userRepository, times(1)).save(any(User.class));
+        verify(userService, times(1)).save(any(User.class));
         verify(jwtTokenProvider, times(1))
                 .generateAccessToken(String.valueOf(user.getId()), user.getRole().getValue());
         verify(jwtTokenProvider, times(1)).generateRefreshToken();
+        verify(authRedisRepository, times(1))
+                .saveRefreshToken(String.valueOf(user.getId()), refreshToken);
     }
 
     @Test
@@ -99,7 +106,7 @@ class AuthServiceTest {
                 .role(UserRole.USER)
                 .build();
 
-        when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(user));
+        when(userService.findByEmail(request.email())).thenReturn(user);
         when(bCryptPasswordEncoder.matches(request.password(), encodedPassword)).thenReturn(true);
         when(jwtTokenProvider.generateAccessToken(String.valueOf(user.getId()), user.getRole().getValue()))
                 .thenReturn(accessToken);
@@ -112,10 +119,12 @@ class AuthServiceTest {
         assertThat(response.accessToken()).isEqualTo(accessToken);
         assertThat(response.refreshToken()).isEqualTo(refreshToken);
 
-        verify(userRepository, times(1)).findByEmail(email);
+        verify(userService, times(1)).findByEmail(email);
         verify(bCryptPasswordEncoder, times(1)).matches(request.password(), encodedPassword);
         verify(jwtTokenProvider, times(1))
                 .generateAccessToken(String.valueOf(user.getId()), user.getRole().getValue());
         verify(jwtTokenProvider, times(1)).generateRefreshToken();
+        verify(authRedisRepository, times(1))
+                .saveRefreshToken(String.valueOf(user.getId()), refreshToken);
     }
 }

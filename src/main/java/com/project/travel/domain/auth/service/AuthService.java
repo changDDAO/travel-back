@@ -8,6 +8,7 @@ import com.project.travel.domain.auth.dto.request.AuthSignUpRequest;
 import com.project.travel.domain.auth.dto.response.AuthSignInResponse;
 import com.project.travel.domain.auth.dto.response.AuthSignUpResponse;
 import com.project.travel.domain.auth.error.AuthErrorCode;
+import com.project.travel.domain.auth.repository.AuthRedisRepository;
 import com.project.travel.domain.user.entity.User;
 import com.project.travel.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
     private final UserService userService;
+    private final AuthRedisRepository authRedisRepository;
 
     private final JwtTokenProvider jwtTokenProvider;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -32,10 +34,11 @@ public class AuthService {
         User user = request.toEntity(encodedPassword);
         User savedUser = userService.save(user);
 
-        String accessToken = jwtTokenProvider.generateAccessToken(String.valueOf(savedUser.getId()), savedUser.getRole().getValue());
+        String accessToken
+                = jwtTokenProvider.generateAccessToken(String.valueOf(savedUser.getId()), savedUser.getRole().getValue());
         String refreshToken = jwtTokenProvider.generateRefreshToken();
 
-        // add refreshToken to redis
+        authRedisRepository.saveRefreshToken(String.valueOf(savedUser.getId()), refreshToken);
 
         return new AuthSignUpResponse(accessToken, refreshToken);
     }
@@ -47,10 +50,11 @@ public class AuthService {
             throw new UnauthorizedException(AuthErrorCode.AUTH_PASSWORD_MISMATCH);
         }
 
-        String accessToken = jwtTokenProvider.generateAccessToken(String.valueOf(user.getId()), user.getRole().getValue());
+        String accessToken
+                = jwtTokenProvider.generateAccessToken(String.valueOf(user.getId()), user.getRole().getValue());
         String refreshToken = jwtTokenProvider.generateRefreshToken();
 
-        // add refreshToken to redis
+        authRedisRepository.saveRefreshToken(String.valueOf(user.getId()), refreshToken);
 
         return new AuthSignInResponse(accessToken, refreshToken);
     }

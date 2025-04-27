@@ -2,6 +2,7 @@ package com.project.travel.domain.user.controller;
 
 import com.project.travel.common.security.entity.CustomUserDetails;
 import com.project.travel.domain.user.dto.request.UserUpdateNicknameRequest;
+import com.project.travel.domain.user.dto.request.UserUpdatePasswordRequest;
 import com.project.travel.domain.user.dto.response.UserProfileResponse;
 import com.project.travel.domain.user.service.UserService;
 import jakarta.validation.Valid;
@@ -35,6 +36,18 @@ public class UserController {
             @RequestBody @Valid UserUpdateNicknameRequest request
     ) {
         userService.updateNickname(userDetails.getId(), request);
+
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
+    }
+
+    @PatchMapping("/password")
+    public ResponseEntity<Void> updateUserPassword(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody @Valid UserUpdatePasswordRequest request
+    ) {
+        userService.updatePassword(userDetails.getId(), request);
 
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)

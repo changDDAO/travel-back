@@ -1,6 +1,8 @@
 package com.project.travel.domain.user.service;
 
+import com.project.travel.domain.auth.service.AuthService;
 import com.project.travel.domain.user.dto.request.UserUpdateNicknameRequest;
+import com.project.travel.domain.user.dto.request.UserUpdatePasswordRequest;
 import com.project.travel.domain.user.dto.response.UserProfileResponse;
 import com.project.travel.domain.user.entity.User;
 import com.project.travel.domain.user.repository.UserRepository;
@@ -10,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
 
@@ -20,18 +23,21 @@ import static org.mockito.Mockito.*;
 class UserServiceTest {
 
     @Mock
-    private UserRepository userRepository;
+    AuthService authService;
+
+    @Mock
+    UserRepository userRepository;
+
+    @Mock
+    BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @InjectMocks
-    private UserService userService;
+    UserService userService;
 
     Long userId = 1L;
     String email = "email@email.com";
-    String password = "password";
+    String password = "oldPassword";
     String nickname = "nickname";
-    String name = "name";
-    String phone = "phone";
-    String updatedNick = "updatedNickname";
 
     @Test
     @DisplayName("[GET api/users] - 프로필 조회 성공")
@@ -59,23 +65,55 @@ class UserServiceTest {
     @DisplayName("[PATCH api/users/nickname] - 닉네임 변경 성공")
     void updateUserNickname() {
         // given
-        UserUpdateNicknameRequest request = new UserUpdateNicknameRequest(updatedNick);
+        String newNickname = "newNickname";
+        UserUpdateNicknameRequest request = new UserUpdateNicknameRequest(newNickname);
 
         User user = User.builder()
                 .id(userId)
                 .nickname(nickname)
                 .build();
 
-        when(userRepository.existsByNickname(updatedNick)).thenReturn(false);
+        when(userRepository.existsByNickname(newNickname)).thenReturn(false);
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
         // when
         userService.updateNickname(userId, request);
 
         // then
-        assertThat(user.getNickname()).isEqualTo(updatedNick);
+        assertThat(user.getNickname()).isEqualTo(newNickname);
 
-        verify(userRepository, times(1)).existsByNickname(updatedNick);
+        verify(userRepository, times(1)).existsByNickname(newNickname);
         verify(userRepository, times(1)).findById(userId);
+    }
+
+    @Test
+    @DisplayName("[PATCH api/users/password] - 비밀번호 변경 성공")
+    void updateUserPassword() {
+        // given
+        String oldPassword = "oldPassword";
+        String newPassword = "newPassword";
+        String oldEncodedPassword = "oldEncodedPassword";
+        String newEncodedPassword = "newEncodedPassword";
+
+        UserUpdatePasswordRequest request = new UserUpdatePasswordRequest(oldPassword, newPassword);
+
+        User user = User.builder()
+                .id(userId)
+                .password(oldEncodedPassword)
+                .build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(bCryptPasswordEncoder.encode(newPassword)).thenReturn(newEncodedPassword);
+
+        // when
+        userService.updatePassword(userId, request);
+
+        // then
+        assertThat(user.getPassword()).isEqualTo(newEncodedPassword);
+
+        verify(userRepository, times(1)).findById(userId);
+        verify(authService, times(1)).isSamePassword(oldPassword, oldEncodedPassword);
+        verify(bCryptPasswordEncoder, times(1)).matches(newPassword, oldEncodedPassword);
+        verify(bCryptPasswordEncoder, times(1)).encode(newPassword);
     }
 }

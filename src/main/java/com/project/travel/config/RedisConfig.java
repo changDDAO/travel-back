@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 
 @Slf4j
@@ -13,14 +12,13 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 public class RedisConfig {
 
     @Value("${spring.data.redis.host}")
-    private String redisHost;
+    private String host;
 
     @Value("${spring.data.redis.port}")
-    private int redisPort;
+    private int port;
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(redisHost, redisPort);
-        return new LettuceConnectionFactory(config);
+        return new LettuceConnectionFactory(host, port);
     }
 }

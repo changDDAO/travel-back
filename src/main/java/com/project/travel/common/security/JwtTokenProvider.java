@@ -20,8 +20,8 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    private final long ACCESS_TOKEN_EXPIRED_TIME = Duration.ofMinutes(30).toMillis();
-    private final long REFRESH_TOKEN_EXPIRED_TIME = Duration.ofDays(3).toMillis();
+    private final long ACCESS_TOKEN_EXPIRED_TIME = Duration.ofMinutes(10).toMillis();
+    private final long REFRESH_TOKEN_EXPIRED_TIME = Duration.ofMinutes(30).toMillis();
 
     private final String BEARER_PREFIX = "Bearer ";
     private final SecretKey accessTokenSecretKey;

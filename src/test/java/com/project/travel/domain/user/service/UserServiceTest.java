@@ -103,6 +103,7 @@ class UserServiceTest {
                 .build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(bCryptPasswordEncoder.matches(oldPassword, oldEncodedPassword)).thenReturn(true);
         when(bCryptPasswordEncoder.encode(newPassword)).thenReturn(newEncodedPassword);
 
         // when
@@ -112,7 +113,7 @@ class UserServiceTest {
         assertThat(user.getPassword()).isEqualTo(newEncodedPassword);
 
         verify(userRepository, times(1)).findById(userId);
-        verify(authService, times(1)).isSamePassword(oldPassword, oldEncodedPassword);
+        verify(bCryptPasswordEncoder, times(1)).matches(oldPassword, oldEncodedPassword);
         verify(bCryptPasswordEncoder, times(1)).matches(newPassword, oldEncodedPassword);
         verify(bCryptPasswordEncoder, times(1)).encode(newPassword);
     }

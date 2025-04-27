@@ -2,6 +2,8 @@ package com.project.travel.domain.user.service;
 
 import com.project.travel.common.error.exceptions.ConflictException;
 import com.project.travel.common.error.exceptions.NotFoundException;
+import com.project.travel.common.error.exceptions.UnauthorizedException;
+import com.project.travel.domain.auth.error.AuthErrorCode;
 import com.project.travel.domain.auth.service.AuthService;
 import com.project.travel.domain.user.dto.request.UserUpdateNicknameRequest;
 import com.project.travel.domain.user.dto.request.UserUpdatePasswordRequest;
@@ -18,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService {
 
-    private final AuthService authService;
     private final UserRepository userRepository;
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -43,7 +44,10 @@ public class UserService {
     public void updatePassword(Long userId, UserUpdatePasswordRequest request) {
         User user = findById(userId);
 
-        authService.isSamePassword(request.oldPassword(), user.getPassword());
+        // TODO: Circular Reference(AuthService.isSamePassword)
+        if (!bCryptPasswordEncoder.matches(request.oldPassword(), user.getPassword())) {
+            throw new UnauthorizedException(AuthErrorCode.AUTH_PASSWORD_MISMATCH);
+        }
 
         if (bCryptPasswordEncoder.matches(request.newPassword(), user.getPassword())) {
             throw new ConflictException(UserErrorCode.NEW_PASSWORD_MATCHES_CURRENT_PASSWORD);

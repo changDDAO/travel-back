@@ -34,7 +34,7 @@ class UserServiceTest {
     String updatedNick = "updatedNickname";
 
     @Test
-    @DisplayName("")
+    @DisplayName("[GET api/users] - 프로필 조회 성공")
     void findUserProfile() {
         // given
         User user = User.builder()
@@ -56,7 +56,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("")
+    @DisplayName("[PATCH api/users/nickname] - 닉네임 변경 성공")
     void updateUserNickname() {
         // given
         UserUpdateNicknameRequest request = new UserUpdateNicknameRequest(updatedNick);

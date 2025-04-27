@@ -20,10 +20,10 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<UserProfileResponse> findUserProfile(
+    public ResponseEntity<UserProfileResponse> findProfile(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        UserProfileResponse response = userService.findUserProfile(userDetails.getId());
+        UserProfileResponse response = userService.findProfile(userDetails.getId());
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -31,7 +31,7 @@ public class UserController {
     }
 
     @PatchMapping("/nickname")
-    public ResponseEntity<Void> updateUserNickname(
+    public ResponseEntity<Void> updateNickname(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody @Valid UserUpdateNicknameRequest request
     ) {
@@ -43,7 +43,7 @@ public class UserController {
     }
 
     @PatchMapping("/password")
-    public ResponseEntity<Void> updateUserPassword(
+    public ResponseEntity<Void> updatePassword(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody @Valid UserUpdatePasswordRequest request
     ) {

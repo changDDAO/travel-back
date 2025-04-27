@@ -23,7 +23,7 @@ public class UserService {
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public UserProfileResponse findUserProfile(Long userId) {
+    public UserProfileResponse findProfile(Long userId) {
         User user = findById(userId);
 
         return UserProfileResponse.from(user);

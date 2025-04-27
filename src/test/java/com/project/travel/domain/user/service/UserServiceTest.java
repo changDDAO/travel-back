@@ -41,7 +41,7 @@ class UserServiceTest {
 
     @Test
     @DisplayName("[GET api/users] - 프로필 조회 성공")
-    void findUserProfile() {
+    void findProfile() {
         // given
         User user = User.builder()
                 .id(userId)
@@ -52,7 +52,7 @@ class UserServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
         // when
-        UserProfileResponse response = userService.findUserProfile(userId);
+        UserProfileResponse response = userService.findProfile(userId);
 
         // then
         assertThat(response.email()).isEqualTo(email);
@@ -63,7 +63,7 @@ class UserServiceTest {
 
     @Test
     @DisplayName("[PATCH api/users/nickname] - 닉네임 변경 성공")
-    void updateUserNickname() {
+    void updateNickname() {
         // given
         String newNickname = "newNickname";
         UserUpdateNicknameRequest request = new UserUpdateNicknameRequest(newNickname);
@@ -88,7 +88,7 @@ class UserServiceTest {
 
     @Test
     @DisplayName("[PATCH api/users/password] - 비밀번호 변경 성공")
-    void updateUserPassword() {
+    void updatePassword() {
         // given
         String oldPassword = "oldPassword";
         String newPassword = "newPassword";

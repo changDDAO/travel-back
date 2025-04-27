@@ -1,5 +1,6 @@
 package com.project.travel.domain.user.service;
 
+import com.project.travel.domain.user.dto.request.UserUpdateNicknameRequest;
 import com.project.travel.domain.user.dto.response.UserProfileResponse;
 import com.project.travel.domain.user.entity.User;
 import com.project.travel.domain.user.repository.UserRepository;
@@ -30,6 +31,7 @@ class UserServiceTest {
     String nickname = "nickname";
     String name = "name";
     String phone = "phone";
+    String updatedNick = "updatedNickname";
 
     @Test
     @DisplayName("")
@@ -50,6 +52,30 @@ class UserServiceTest {
         assertThat(response.email()).isEqualTo(email);
         assertThat(response.nickname()).isEqualTo(nickname);
 
+        verify(userRepository, times(1)).findById(userId);
+    }
+
+    @Test
+    @DisplayName("")
+    void updateUserNickname() {
+        // given
+        UserUpdateNicknameRequest request = new UserUpdateNicknameRequest(updatedNick);
+
+        User user = User.builder()
+                .id(userId)
+                .nickname(nickname)
+                .build();
+
+        when(userRepository.existsByNickname(updatedNick)).thenReturn(false);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        // when
+        userService.updateNickname(userId, request);
+
+        // then
+        assertThat(user.getNickname()).isEqualTo(updatedNick);
+
+        verify(userRepository, times(1)).existsByNickname(updatedNick);
         verify(userRepository, times(1)).findById(userId);
     }
 }

@@ -1,12 +1,15 @@
 package com.project.travel.domain.user.service;
 
+import com.project.travel.common.error.exceptions.ConflictException;
 import com.project.travel.common.error.exceptions.NotFoundException;
+import com.project.travel.domain.user.dto.request.UserUpdateNicknameRequest;
 import com.project.travel.domain.user.dto.response.UserProfileResponse;
 import com.project.travel.domain.user.entity.User;
 import com.project.travel.domain.user.error.UserErrorCode;
 import com.project.travel.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +21,16 @@ public class UserService {
         User user = findById(userId);
 
         return UserProfileResponse.from(user);
+    }
+
+    @Transactional
+    public void updateNickname(Long userId, UserUpdateNicknameRequest request) {
+        if (userRepository.existsByNickname(request.nickname())) {
+            throw new ConflictException(UserErrorCode.ALREADY_REGISTERED_NICKNAME);
+        }
+
+        User user = findById(userId);
+        user.updateNickname(request.nickname());
     }
 
     public boolean existsByEmail(String email) {

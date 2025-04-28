@@ -46,9 +46,7 @@ public class AuthService {
     public AuthSignInResponse signIn(AuthSignInRequest request) {
         User user = userService.findByEmail(request.email());
 
-        if (!bCryptPasswordEncoder.matches(request.password(), user.getPassword())) {
-            throw new UnauthorizedException(AuthErrorCode.AUTH_PASSWORD_MISMATCH);
-        }
+        isSamePassword(request.password(), user.getPassword());
 
         String accessToken
                 = jwtTokenProvider.generateAccessToken(String.valueOf(user.getId()), user.getRole().getValue());
@@ -57,5 +55,11 @@ public class AuthService {
         authRedisRepository.saveRefreshToken(String.valueOf(user.getId()), refreshToken);
 
         return new AuthSignInResponse(accessToken, refreshToken);
+    }
+
+    public void isSamePassword(String inputPassword, String userPassword) {
+        if (!bCryptPasswordEncoder.matches(inputPassword, userPassword)) {
+            throw new UnauthorizedException(AuthErrorCode.AUTH_PASSWORD_MISMATCH);
+        }
     }
 }
